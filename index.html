@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アンモモ キャストルール</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: #1a1a1a; color: #fff; padding: 20px; }
+    .loading { text-align: center; padding: 60px 20px; font-size: 18px; }
+    .denied { text-align: center; padding: 60px 20px; }
+    .denied h2 { color: #ff4444; margin-bottom: 16px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 22px; text-align: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #f5d600; }
+    .section { background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .section h2 { font-size: 17px; color: #f5d600; margin-bottom: 12px; }
+    .section p, .section li { font-size: 15px; line-height: 1.8; color: #ddd; }
+    .section ul { padding-left: 20px; }
+    .section li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">読み込み中...</div>
+  <div id="denied" class="denied" style="display:none;">
+    <h2>アクセス権限がありません</h2>
+    <p>管理者にお問い合わせください。</p>
+    <p style="margin-top:20px;color:#888;font-size:13px;">あなたのID：<span id="user-id"></span></p>
+  </div>
+  <div id="content" class="container" style="display:none;">
+    <h1>アンモモ キャストルール</h1>
+
+    <div class="section">
+      <h2>出勤について</h2>
+      <ul>
+        <li>ここにルールを書いてください</li>
+        <li>ここにルールを書いてください</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>接客について</h2>
+      <ul>
+        <li>ここにルールを書いてください</li>
+        <li>ここにルールを書いてください</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>注意事項</h2>
+      <ul>
+        <li>ここにルールを書いてください</li>
+        <li>ここにルールを書いてください</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    var LIFF_ID = "2009695251-rNMl5hWB";
+    var API_URL = "https://script.google.com/macros/s/AKfycbymhmIoLG6FidCY0krZpGb33PKxlnxAYtAEsy8n2p3ER4LTbXjjXTGrRiRZ8Ks6nDPQ_g/exec";
+
+    liff.init({ liffId: LIFF_ID }).then(function() {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      return liff.getProfile().then(function(profile) {
+        var userId = profile.userId;
+        return fetch(API_URL + "?userId=" + encodeURIComponent(userId), {
+          method: "GET"
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          document.getElementById("loading").style.display = "none";
+          if (data.allowed) {
+            document.getElementById("content").style.display = "block";
+          } else {
+            document.getElementById("user-id").textContent = userId;
+            document.getElementById("denied").style.display = "block";
+          }
+        });
+      });
+    }).catch(function(err) {
+      document.getElementById("loading").textContent = "エラー: " + err.message;
+    });
+  </script>
+</body>
+</html>
