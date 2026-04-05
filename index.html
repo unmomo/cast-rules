@@ -57,7 +57,11 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     var LIFF_ID = "2009695251-rNMl5hWB";
-    var ALLOWED_URL = "https://raw.githubusercontent.com/unmomo/cast-rules/main/allowed.txt";
+    // ===== 許可リスト（キャストのIDを追加・削除してください） =====
+    var ALLOWED_USERS = [
+      "U47b29821ee6504a16f19b63c0186a7dc"
+    ];
+    // ===========================================================
 
     liff.init({ liffId: LIFF_ID }).then(function() {
       if (!liff.isLoggedIn()) {
@@ -66,19 +70,14 @@
       }
       return liff.getProfile().then(function(profile) {
         var userId = profile.userId;
-        return fetch(ALLOWED_URL)
-          .then(function(res) { return res.text(); })
-          .then(function(text) {
-            var list = text.split("\n").map(function(s) { return s.trim(); });
-            var allowed = list.indexOf(userId) !== -1;
-            document.getElementById("loading").style.display = "none";
-            if (allowed) {
-              document.getElementById("content").style.display = "block";
-            } else {
-              document.getElementById("user-id").textContent = userId;
-              document.getElementById("denied").style.display = "block";
-            }
-          });
+        var allowed = ALLOWED_USERS.indexOf(userId) !== -1;
+        document.getElementById("loading").style.display = "none";
+        if (allowed) {
+          document.getElementById("content").style.display = "block";
+        } else {
+          document.getElementById("user-id").textContent = userId;
+          document.getElementById("denied").style.display = "block";
+        }
       });
     }).catch(function(err) {
       document.getElementById("loading").textContent = "エラー: " + err.message;
