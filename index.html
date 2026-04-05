@@ -57,7 +57,7 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     var LIFF_ID = "2009695251-rNMl5hWB";
-    var API_URL = "https://script.google.com/macros/s/AKfycbymhmIoLG6FidCY0krZpGb33PKxlnxAYtAEsy8n2p3ER4LTbXjjXTGrRiRZ8Ks6nDPQ_g/exec";
+    var SHEET_CSV = "https://docs.google.com/spreadsheets/d/17NP4ZsFt3deGzD17ufTPck7_CTEx0Y3er9MkT6U2tpo/gviz/tq?tqx=out:csv&sheet=%E8%A8%B1%E5%8F%AF%E3%83%AA%E3%82%B9%E3%83%88";
 
     liff.init({ liffId: LIFF_ID }).then(function() {
       if (!liff.isLoggedIn()) {
@@ -66,19 +66,18 @@
       }
       return liff.getProfile().then(function(profile) {
         var userId = profile.userId;
-        return fetch(API_URL + "?userId=" + encodeURIComponent(userId), {
-          method: "GET"
-        })
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          document.getElementById("loading").style.display = "none";
-          if (data.allowed) {
-            document.getElementById("content").style.display = "block";
-          } else {
-            document.getElementById("user-id").textContent = userId;
-            document.getElementById("denied").style.display = "block";
-          }
-        });
+        return fetch(SHEET_CSV)
+          .then(function(res) { return res.text(); })
+          .then(function(csv) {
+            var allowed = csv.indexOf(userId) !== -1;
+            document.getElementById("loading").style.display = "none";
+            if (allowed) {
+              document.getElementById("content").style.display = "block";
+            } else {
+              document.getElementById("user-id").textContent = userId;
+              document.getElementById("denied").style.display = "block";
+            }
+          });
       });
     }).catch(function(err) {
       document.getElementById("loading").textContent = "エラー: " + err.message;
