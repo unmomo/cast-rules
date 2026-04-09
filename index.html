@@ -126,18 +126,18 @@
 
     /* ローディング・アクセス制御 */
     .loading { text-align: center; padding: 60px 20px; font-size: 16px; color: #888; }
-    .denied { text-align: center; padding: 60px 20px; }
-    .denied h2 { color: #cc4444; margin-bottom: 16px; font-size: 18px; }
-    .denied p { color: #666; }
-    #user-id { font-size: 12px; color: #aaa; word-break: break-all; }
+    .denied { text-align: center; padding: 60px 20px; background: #fff; max-width: 820px; margin: 0 auto; }
+    .denied h2 { color: #8b6914; margin-bottom: 16px; font-size: 17px; font-weight: normal; }
+    .denied p { color: #999; font-size: 13px; }
+    #user-id { font-size: 11px; color: #ccc; word-break: break-all; }
   </style>
 </head>
 <body>
   <div id="loading" class="loading">読み込み中...</div>
   <div id="denied" class="denied" style="display:none;">
-    <h2>アクセス権限がありません</h2>
-    <p>管理者にお問い合わせください。</p>
-    <p style="margin-top:20px;"><span id="user-id"></span></p>
+    <h2>このページは現在ご利用いただけません</h2>
+    <p>ご不明な点はお店までお問い合わせください。</p>
+    <p style="margin-top:24px;">あなたのID<br><span id="user-id"></span></p>
   </div>
   <div id="content" class="page" style="display:none;">
     <h1 class="doc-title">アンモモ キャストルール</h1>
