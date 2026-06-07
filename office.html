@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>事務所利用申請 - アンモモ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+      color: #2c2c2c;
+      background: #f0f0f0;
+      padding: 16px;
+    }
+    .page {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a2e;
+      border-bottom: 2px solid #c8a97a;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .note {
+      background: #fff8f0;
+      border: 1px solid #e8d5b0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #8b6914;
+    }
+    textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 14px;
+      border: 1px solid #d0c5b5;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.7;
+      color: #2c2c2c;
+      resize: vertical;
+      -webkit-appearance: none;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #c8a97a;
+    }
+    .send-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .send-btn:active {
+      background: #2a2a4e;
+    }
+    .send-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .loading { text-align: center; padding: 60px 20px; font-size: 15px; color: #888; }
+    .denied { text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px; max-width: 600px; margin: 0 auto; }
+    .denied h2 { color: #8b6914; margin-bottom: 16px; font-size: 16px; font-weight: normal; }
+    .denied p { color: #777; font-size: 13px; }
+    #user-id { font-size: 11px; color: #888; word-break: break-all; }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(26, 26, 46, 0.9);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">読み込み中...</div>
+  <div id="denied" class="denied" style="display:none;">
+    <h2>このページは現在ご利用いただけません</h2>
+    <p style="margin-top:24px;">あなたのID<br><span id="user-id"></span></p>
+  </div>
+  <div id="content" class="page" style="display:none;">
+    <h1 class="title">事務所利用申請</h1>
+
+    <div class="note">事務所名、利用タイプ、利用日、利用時間を編集してから送信してください。</div>
+
+    <textarea id="message"></textarea>
+
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">LINEに送信</button>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    var LIFF_ID = "REPLACE_WITH_NEW_LIFF_ID";
+    var ALLOWED_USERS = [
+      "U47b29821ee6504a16f19b63c0186a7dc",
+      "Uc549c8f86af5d193f88bcef359c67341"
+    ];
+
+    var TEMPLATE = "【事務所利用申請】\nお疲れ様です。\n◯◯事務所の利用希望です。\n利用タイプ：日中 or 泊まり\n利用日：\n利用時間：何時〜何時まで\nよろしくお願いします。";
+
+    function showToast(text) {
+      var t = document.getElementById("toast");
+      t.textContent = text;
+      t.classList.add("show");
+      setTimeout(function() { t.classList.remove("show"); }, 2000);
+    }
+
+    function sendMessage() {
+      var msg = document.getElementById("message").value;
+      if (!msg.trim()) {
+        showToast("メッセージを入力してください");
+        return;
+      }
+      var btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+      liff.sendMessages([{ type: "text", text: msg }])
+        .then(function() {
+          showToast("送信しました");
+          setTimeout(function() { liff.closeWindow(); }, 1000);
+        })
+        .catch(function(err) {
+          showToast("送信エラー: " + err.message);
+          btn.disabled = false;
+        });
+    }
+
+    liff.init({ liffId: LIFF_ID }).then(function() {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      return liff.getProfile().then(function(profile) {
+        var userId = profile.userId;
+        var allowed = ALLOWED_USERS.indexOf(userId) !== -1;
+        document.getElementById("loading").style.display = "none";
+        if (allowed) {
+          document.getElementById("message").value = TEMPLATE;
+          document.getElementById("content").style.display = "block";
+        } else {
+          document.getElementById("user-id").textContent = userId;
+          document.getElementById("denied").style.display = "block";
+        }
+      });
+    }).catch(function(err) {
+      document.getElementById("loading").textContent = "エラー: " + err.message;
+    });
+  </script>
+</body>
+</html>
