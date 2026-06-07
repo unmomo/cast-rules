@@ -125,10 +125,6 @@
 </head>
 <body>
   <div id="loading" class="loading">読み込み中...</div>
-  <div id="denied" class="denied" style="display:none;">
-    <h2>このページは現在ご利用いただけません</h2>
-    <p style="margin-top:24px;">あなたのID<br><span id="user-id"></span></p>
-  </div>
   <div id="content" class="page" style="display:none;">
     <h1 class="title">延長申請</h1>
 
@@ -149,14 +145,10 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     var LIFF_ID = "2009695251-qab3PtCI";
-    var ALLOWED_USERS = [
-      "U47b29821ee6504a16f19b63c0186a7dc",
-      "Uc549c8f86af5d193f88bcef359c67341"
-    ];
 
     var TEMPLATES = {
-      basic: "【延長申請】\n今対応中のお客様 ○分ご延長です。\n支払い方法　現金／クレカ\nよろしくお願いします。",
-      late: "【延長申請】\n今対応中のお客様 ○分ご延長です。\nxx円＋4,000円（深夜交通費／23:30～4:30解散の場合）\n現金で受け取ります。\nよろしくお願いします。"
+      basic: "今対応中のお客様 ○分ご延長です。\n支払い方法　現金／クレカ\nよろしくお願いします。",
+      late: "今対応中のお客様 ○分ご延長です。\nxx円＋4,000円（深夜交通費／23:30～4:30解散の場合）\n現金で受け取ります。\nよろしくお願いします。"
     };
 
     function switchTemplate(tab) {
@@ -198,18 +190,9 @@
         liff.login();
         return;
       }
-      return liff.getProfile().then(function(profile) {
-        var userId = profile.userId;
-        var allowed = ALLOWED_USERS.indexOf(userId) !== -1;
-        document.getElementById("loading").style.display = "none";
-        if (allowed) {
-          document.getElementById("message").value = TEMPLATES.basic;
-          document.getElementById("content").style.display = "block";
-        } else {
-          document.getElementById("user-id").textContent = userId;
-          document.getElementById("denied").style.display = "block";
-        }
-      });
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("message").value = TEMPLATES.basic;
+      document.getElementById("content").style.display = "block";
     }).catch(function(err) {
       document.getElementById("loading").textContent = "エラー: " + err.message;
     });
